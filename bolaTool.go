@@ -2,7 +2,7 @@ package main
 
 import (
 	"bufio"
-	// "encoding/json"
+	"encoding/json"
 	"fmt"
 	"os"
 	"regexp"
@@ -23,7 +23,7 @@ type LogData struct {
 	} `json:"rsp"`
 }
 
-// pulls out the user token from headers, using "Bearer" to find a regex match
+// pulls out the user token from headers using "Bearer" to find a regex match
 func extractToken(headers string) string {
 	pattern := regexp.MustCompile(`Authorization:\s*Bearer\s*([\w-]+)`)
 	matches := pattern.FindStringSubmatch(headers)
@@ -64,10 +64,11 @@ func analyzeLogFile(logFilePath string) {
 		}
 
 		var entry LogData
-		// if err := json.Unmarshal([]byte(line), &entry); err != nil {
-		// 	fmt.Printf("Skipping invalid log line: %v\n", err)
-		// 	continue
-		// }
+		err := json.Unmarshal([]byte(line), &entry)
+		if err != nil {
+			fmt.Printf("Error parsing log entry: %v\n", err)
+			continue
+		}
 
 		userToken := extractToken(entry.Req.Headers)
 		resourceID := extractIDFromURL(entry.Req.Path)
